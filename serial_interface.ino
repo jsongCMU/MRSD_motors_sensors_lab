@@ -3,7 +3,8 @@
  * ledtoggle -> "test"
  * get_pot -> val         # val: potentiometer value, 0-1023
  * set_servo,val -> val   # val: servo angle in degrees, 0-180
- * get_slot_sensor -> val        # val: slot sensor, 1 if open, 0 if blocked
+ * get_slot_sensor -> val # val: slot sensor, 1 if open, 0 if blocked
+ * get_ir -> val          # val: IR sensor, 0-1023
  */
 
 #include <Servo.h>
@@ -12,11 +13,15 @@ const int LED_pin = 13;
 const int pot_pin = A0;
 const int servo_pin = 9;
 const int slot_sensor_pin = A3;
+const int IR_pin = A1;
+const int US_pin = A2;
 
 void setup() {
   pinMode(LED_pin,OUTPUT);
   pinMode(pot_pin,INPUT);
   pinMode(slot_sensor_pin,INPUT);
+  pinMode(IR_pin,INPUT);
+  pinMode(US_pin,INPUT);
   myservo.attach(servo_pin);
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
 }
@@ -47,6 +52,12 @@ void loop() {
     }else if(strcmp(token,"get_slot_sensor")==0){
       int slot_sensor_val = digitalRead(slot_sensor_pin);
       Serial.println(slot_sensor_val);
+    }else if(strcmp(token,"get_ir")==0){
+      int ir_val = analogRead(IR_pin);
+      Serial.println(ir_val);
+    }else if(strcmp(token,"get_us")==0){
+      int us_val = analogRead(US_pin);
+      Serial.println(us_val);
     }
   }
 }
