@@ -5,6 +5,8 @@
  * set_servo,val -> val   # val: servo angle in degrees, 0-180
  * get_slot_sensor -> val # val: slot sensor, 1 if open, 0 if blocked
  * get_ir -> val          # val: IR sensor, 0-1023
+ * get_us -> val          # val: US sensor, 0-1023
+ * get_all_sensors -> val1,val2,val3,val4 # lists potentiometer, slot sensor, IR and US values, in that order
  */
 
 #include <Servo.h>
@@ -57,6 +59,15 @@ void loop() {
       Serial.println(ir_val);
     }else if(strcmp(token,"get_us")==0){
       int us_val = analogRead(US_pin);
+      Serial.println(us_val);
+    }else if(strcmp(token,"get_all_sensors")==0){
+      int pot_val = analogRead(pot_pin);
+      int slot_sensor_val = digitalRead(slot_sensor_pin);
+      int ir_val = analogRead(IR_pin);
+      int us_val = analogRead(US_pin);
+      Serial.print(pot_val);Serial.print(",");
+      Serial.print(slot_sensor_val);Serial.print(",");
+      Serial.print(ir_val);Serial.print(",");
       Serial.println(us_val);
     }
   }
