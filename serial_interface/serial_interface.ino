@@ -10,6 +10,7 @@
  */
 
 #include <Servo.h>
+
 Servo myservo;
 const int LED_pin = 13;
 const int pot_pin = A0;
@@ -35,21 +36,19 @@ void loop() {
     String incomingString = Serial.readStringUntil('\n');
     const char* serial_string = incomingString.c_str();
     char* token = strtok(serial_string, ",");
+    printf(serial_string);
     if(strcmp(token, "ledtoggle")==0){
       // Test
       digitalWrite(LED_pin,!digitalRead(LED_pin));
-      Serial.println("test");
     }else if(strcmp(token,"get_pot")==0){
       // get potentiometer
       int pot_val = analogRead(pot_pin);
-      Serial.println(pot_val);
     }else if(strcmp(token,"set_servo")==0){
       // Set servo
       token = strtok(NULL, ",");
       if(token != NULL){
         int servo_val = atoi(token);
         myservo.write(servo_val);
-        Serial.println(servo_val);
       }
     }else if(strcmp(token,"get_slot_sensor")==0){
       int slot_sensor_val = digitalRead(slot_sensor_pin);
