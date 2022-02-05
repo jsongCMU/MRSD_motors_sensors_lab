@@ -27,6 +27,7 @@ const int stepperDirPin = 5;
 const int stepperStepPin = 4;
 const int stepsPerRevolution = 200;
 int stepperDelay = 10;
+int servo_val = 10;
 
 enum appState_e {
   STATE_0,
@@ -79,7 +80,10 @@ int stepperSpeedMap() {
 
 void active_state_functions()
 {
+  // Drive stepper
   spinStepperMotor(stepperDelay);
+  // Driver servo
+  myservo.write(servo_val);
 }
 
 void setup() {
@@ -118,7 +122,10 @@ void loop() {
    case STATE_1:
    {
     // Sensors control motors
+    // Get stepper speed from IR sensor
     stepperDelay = stepperSpeedMap();
+    // Get servo position from pot
+    servo_val = map(analogRead(pot_pin), 0, 1023, 10,180);
     active_state_functions();
     break;
    }
@@ -145,8 +152,12 @@ void loop() {
         // Set servo
         token = strtok(NULL, ",");
         if(token != NULL){
-          int servo_val = atoi(token);
-          myservo.write(servo_val);
+          servo_val = atoi(token);
+          if(servo_val < 10){
+            servo_val = 10;
+          }else if(servo_val > 180){
+            servo_val = 180;
+          }
           Serial.println(servo_val);
         }
       }else if(strcmp(token,"set_step_speed")==0){
