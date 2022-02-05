@@ -3,6 +3,7 @@
  * ledtoggle -> "test"
  * get_pot -> val         # val: potentiometer value, 0-1023
  * set_servo,val -> val   # val: servo angle in degrees, 0-180
+ * set_step_speed,val -> val # val: delay for motor in ms
  * get_slot_sensor -> val # val: slot sensor, 1 if open, 0 if blocked
  * get_ir -> val          # val: IR sensor, 0-1023
  * get_us -> val          # val: US sensor, 0-1023
@@ -25,6 +26,7 @@ SharpIR sensor( SharpIR::GP2Y0A02YK0F , IR_sensor );
 const int stepperDirPin = 5;
 const int stepperStepPin = 4;
 const int stepsPerRevolution = 200;
+int stepperDelay = 10;
 
 enum appState_e {
   STATE_0,
@@ -63,19 +65,22 @@ int getIRSensorData()
 void spinStepperMotor(int customDelay)
 {
     digitalWrite(stepperStepPin, HIGH);
-    delayMicroseconds(customDelay);
+    delay(customDelay);
     digitalWrite(stepperStepPin, LOW);
-    delayMicroseconds(customDelay);
+    delay(customDelay);
 }
 
 // Function for reading the Potentiometer
 int stepperSpeedMap() {
   int customDelay = getIRSensorData(); // Reads the IR sensor
-  int newCustom = map(customDelay, 19, 70, 300,4000); // Convrests the read values of the ir sensor into desireded delay values (300 to 4000)
+  int newCustom = map(customDelay, 19, 70, 1,100); // Convrests the read values of the ir sensor into desireded delay values (300 to 4000)
   return newCustom;  
 }
 
-
+void active_state_functions()
+{
+  spinStepperMotor(stepperDelay);
+}
 
 void setup() {
   pinMode(LED_pin,OUTPUT);
@@ -92,6 +97,7 @@ void setup() {
   
   Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
 }
+
 
 void loop() {
 
@@ -112,12 +118,16 @@ void loop() {
    case STATE_1:
    {
     // Sensors control motors
+    stepperDelay = stepperSpeedMap();
+    active_state_functions();
     break;
    }
    case STATE_2:
    {
     // GUI reads and writes to system
     // check if data is available
+    active_state_functions();
+    
     if (Serial.available() > 0) {
       // read the incoming string:
       String incomingString = Serial.readStringUntil('\n');
@@ -138,6 +148,13 @@ void loop() {
           int servo_val = atoi(token);
           myservo.write(servo_val);
           Serial.println(servo_val);
+        }
+      }else if(strcmp(token,"set_step_speed")==0){
+        // Set stepper speed
+        token = strtok(NULL, ",");
+        if(token != NULL){
+          stepperDelay = atoi(token);
+          Serial.println(stepperDelay);
         }
       }else if(strcmp(token,"get_slot_sensor")==0){
         int slot_sensor_val = digitalRead(slot_sensor_pin);
