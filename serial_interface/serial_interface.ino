@@ -1,9 +1,10 @@
 /*
  * Commands -> response:
  * ledtoggle -> "test"
+ * get_state -> val       # val: get state of FSM
  * get_pot -> val         # val: potentiometer value, 0-1023
  * set_servo,val -> val   # val: servo angle in degrees, 0-180
- * set_dc,val -> val   # val: encoder position, -1000 to 1000
+ * set_dc,val -> val      # val: encoder position, 0 to 1000
  * set_step_speed,val -> val # val: delay for motor in ms
  * get_slot_sensor -> val # val: slot sensor, 1 if open, 0 if blocked
  * get_ir -> val          # val: IR sensor, 0-1023
@@ -45,7 +46,7 @@ enum appState_e {
   STATE_1,
   STATE_2,
   STATES_NUM
-}app_state;
+}app_state = STATE_2;
 
 
 enum appState_e app_state_local = STATES_NUM;
@@ -163,8 +164,8 @@ void loop() {
   if(app_state_local!=app_state)
   {
     app_state_local = app_state;
-    Serial.print("In State: ");
-    Serial.println(app_state_local);
+//    Serial.print("In State: ");
+//    Serial.println(app_state_local);
   }
 
   switch (app_state)
@@ -212,6 +213,9 @@ void loop() {
       if(strcmp(token, "ledtoggle")==0){
         // Test
         digitalWrite(LED_pin,!digitalRead(LED_pin));
+      }else if(strcmp(token,"get_state")==0){
+        // get state
+        Serial.println(app_state);
       }else if(strcmp(token,"get_pot")==0){
         // get potentiometer
         int pot_val = analogRead(pot_pin);
@@ -255,7 +259,7 @@ void loop() {
         Serial.println(us_val);
       }else if(strcmp(token,"get_all_sensors")==0){
         int pot_val = analogRead(pot_pin);
-        slotValue = analogRead(slot);
+        slotValue = digitalRead(slot);
         int ir_val = getIRSensorData();
         int us_val = analogRead(US_pin);
         Serial.print(pot_val);Serial.print(",");
