@@ -89,12 +89,15 @@ void draw() {
   
   /**** MOTORS ****/
   // servo
+  text("degrees 10-180", 500, 75);
   text("Servo Motor:", 500, 50);
   
   // stepper
+  text("integer 1-10", 500, 175);
   text("Stepper Motor:", 500, 150);
   
   // dc
+  text("0-1000", 500, 275);
   text("DC Motor:", 500, 250);
   
   delay(100);
@@ -103,8 +106,11 @@ void draw() {
 void readPort() {
   if ( myPort.available() > 0) {
     val = myPort.readStringUntil('\n');
-    String[] temp = val.split(",");
-    if (temp.length == 4) readings = temp;
+    System.out.println(val);
+    if (val != null) {
+      String[] temp = val.split(",");
+      if (temp.length == 4) readings = temp;
+    }
   }
 }
 
@@ -148,12 +154,12 @@ void mousePressed()
 
 void keyPressed() {
   int motor = 0;
-  String[] motornames = {"servo","stepper","dc"};
+  String[] motornames = {"servo","step_speed","dc"};
    for (TEXTBOX t : textboxes) {
       if (t.KEYPRESSED(key, (int)keyCode)) {
         //myPort.write("ledtoggle\n");
         myPort.write(String.format("set_%s,%d", motornames[motor], Integer.parseInt(t.Text)));
-        //System.out.println(String.format("set_%s,%d", motornames[motor], Integer.parseInt(t.Text)));
+        System.out.println(String.format("set_%s,%d", motornames[motor], Integer.parseInt(t.Text)));
       }
       motor++;
    }
